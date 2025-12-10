@@ -26,7 +26,6 @@ jobs:
           cache: "poetry"
 
       - name: Build SDK Package
-        working-directory: ./landfall-sdk
         # Poetry handles creating the sdist and wheel in the dist/ folder automatically
         run: poetry build
 
@@ -34,5 +33,5 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           # Poetry outputs builds to the local dist/ folder
-          packages_dir: landfall-sdk/dist/
+          packages_dir: dist/
           password: ${{ secrets.PYPI_SDK_TOKEN }}
