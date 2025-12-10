@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "landfall-monitor"
+version = "0.1.0"
+description = "Open Source Camera Driver SDK for Landfall Monitor"
+authors = ["olly <15944451+pressol@users.noreply.github.com.>"]
+readme = "README.md"
+packages = [
+    { include = "camerasdk.py" }
+]
+[tool.poetry.dependencies]
+    python = ">=3.10,<3.13"
+    PySide6 = ">=6.4.0"  # Required for Signals/Slots
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

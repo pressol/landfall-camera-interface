@@ -1,0 +1,39 @@
+name: Deploy SDK to PyPI
+
+on:
+  release:
+    types: [published]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Poetry
+        run: pipx install poetry
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+
+      - name: Build SDK Package
+        working-directory: ./landfall-sdk
+        # Poetry handles creating the sdist and wheel in the dist/ folder automatically
+        run: poetry build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # Poetry outputs builds to the local dist/ folder
+          packages_dir: landfall-sdk/dist/
+          password: ${{ secrets.PYPI_SDK_TOKEN }}
