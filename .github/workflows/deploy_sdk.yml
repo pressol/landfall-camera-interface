@@ -1,19 +1,21 @@
-name: Deploy SDK to PyPI
+name: Deploy SDK
+
+permissions:
+  contents: write # Required to create the GitHub Release
 
 on:
+  push:
+    tags:
+      - "v*" # Triggers on tags like v0.1.0, v1.0.0
   workflow_dispatch:
-  release:
-    types: [published]
 
 jobs:
-  pypi-publish:
-    name: Upload release to PyPI
+  # --- JOB 1: BUILD ---
+  build:
+    name: Build Package
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Install Poetry
@@ -25,13 +27,49 @@ jobs:
           python-version: "3.10"
           cache: "poetry"
 
-      - name: Build SDK Package
-        # Poetry handles creating the sdist and wheel in the dist/ folder automatically
+      - name: Build SDK
         run: poetry build
+
+      # Save the built files (dist folder) to be used by the next jobs
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-dist
+          path: dist/*
+
+  # --- JOB 2: GITHUB RELEASE ---
+  gh-release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-dist
+          path: dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # This attaches the .whl and .tar.gz to the GitHub Release page
+          files: dist/*
+          generate_release_notes: true
+
+  # --- JOB 3: PYPI PUBLISH ---
+  pypi-publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-dist
+          path: dist
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          # Poetry outputs builds to the local dist/ folder
           packages_dir: dist/
           password: ${{ secrets.PYPI_SDK_TOKEN }}
