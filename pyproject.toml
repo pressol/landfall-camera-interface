@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "landfall-monitor"
+name = "landfall-camera-interface"
 version = "0.1.0"
 description = "Open Source Camera Driver SDK for Landfall Monitor"
 authors = ["olly <15944451+pressol@users.noreply.github.com.>"]
